@@ -27,6 +27,15 @@ if (fs.existsSync(migrationsDir)) {
   }
 }
 
+// 若無管理員帳號則自動建立預設帳號
+const bcrypt = require('bcryptjs');
+const adminCount = db.prepare('SELECT COUNT(*) as c FROM admins').get();
+if (adminCount.c === 0) {
+  const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin1234', 10);
+  db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run('admin', hash);
+  console.log('預設管理員已建立：admin / ' + (process.env.ADMIN_PASSWORD || 'admin1234'));
+}
+
 const app = express();
 
 // CORS：允許同源（Railway）和本機開發
