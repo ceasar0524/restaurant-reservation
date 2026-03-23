@@ -1,13 +1,13 @@
 process.env.TZ = 'Asia/Taipei';
 require('dotenv').config();
 
-const { registerWorker, startWorkerLoop } = require('./src/queue');
-const { startPoller } = require('./src/poller');
-const { startScheduler } = require('./src/scheduler');
-const confirmationWorker = require('./src/workers/confirmation');
-const cancellationWorker = require('./src/workers/cancellation');
-const reminderWorker = require('./src/workers/reminder');
-const modificationWorker = require('./src/workers/modification');
+const { registerWorker, startWorkerLoop } = require('./queue');
+const { startPoller } = require('./poller');
+const { startScheduler } = require('./scheduler');
+const confirmationWorker = require('./workers/confirmation');
+const cancellationWorker = require('./workers/cancellation');
+const reminderWorker = require('./workers/reminder');
+const modificationWorker = require('./workers/modification');
 
 // 註冊 email workers
 registerWorker('confirmation', confirmationWorker);
