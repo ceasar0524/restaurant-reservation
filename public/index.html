@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cuisine Créative de Ruru — 線上訂位</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Noto+Serif+TC:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e6c97a;
+      --dark: #1a1208;
+      --cream: #faf6ef;
+      --warm: #f0e8d8;
+      --text-muted: #8a7a65;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--dark);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      height: 100vh;
+      min-height: 640px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80');
+      background-size: cover;
+      background-position: center 40%;
+      filter: brightness(0.45) saturate(1.1);
+      transform: scale(1.02);
+      animation: slowzoom 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes slowzoom {
+      from { transform: scale(1.02); }
+      to   { transform: scale(1.08); }
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(26,18,8,0.2) 0%,
+        rgba(26,18,8,0.05) 40%,
+        rgba(26,18,8,0.7) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative;
+      text-align: center;
+      padding: 0 24px;
+      animation: fadeup 1.2s ease both;
+    }
+
+    @keyframes fadeup {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-tag {
+      display: inline-block;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 6px 18px;
+      border-radius: 2px;
+      margin-bottom: 22px;
+    }
+
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 8vw, 5.5rem);
+      line-height: 1.1;
+      font-weight: 400;
+      color: #fff;
+      text-shadow: 0 2px 24px rgba(0,0,0,0.4);
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      color: var(--gold-light);
+    }
+
+    .hero-sub {
+      margin-top: 18px;
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 300;
+      font-size: 1rem;
+      color: rgba(255,255,255,0.75);
+      letter-spacing: 0.08em;
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    .hero-scroll::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.5), transparent);
+    }
+
+    /* ── RESERVATION SECTION ── */
+    .section-reserve {
+      background: var(--cream);
+      position: relative;
+    }
+
+    .section-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 24px 100px;
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 72px;
+      align-items: start;
+    }
+
+    @media (max-width: 760px) {
+      .section-inner { grid-template-columns: 1fr; gap: 40px; padding: 56px 20px 72px; }
+    }
+
+    /* Left info */
+    .info-col { color: var(--dark); }
+
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .info-col h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.2;
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 20px;
+    }
+
+    .info-col p {
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 300;
+      color: var(--text-muted);
+      line-height: 1.9;
+      font-size: 0.95rem;
+      margin-bottom: 36px;
+    }
+
+    .divider {
+      width: 48px;
+      height: 1px;
+      background: var(--gold);
+      margin-bottom: 36px;
+    }
+
+    .info-items { display: flex; flex-direction: column; gap: 20px; }
+
+    .info-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+
+    .info-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--warm);
+      border: 1px solid rgba(201,168,76,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .info-label {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+
+    .info-value {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.95rem;
+      color: var(--dark);
+      font-weight: 400;
+    }
+
+    /* ── FORM CARD ── */
+    .form-card {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 16px 56px rgba(26,18,8,0.12);
+    }
+
+    .form-card-header {
+      background: var(--dark);
+      padding: 28px 32px;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .form-card-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: #fff;
+    }
+
+    .form-card-header p {
+      margin-top: 4px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.04em;
+    }
+
+    .form-body { padding: 28px 32px 32px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #e8e0d4;
+      border-radius: 3px;
+      font-size: 0.92rem;
+      color: var(--dark);
+      background: var(--cream);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      font-family: 'Inter', sans-serif;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a7a65' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+      cursor: pointer;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--gold);
+      background: #fff;
+    }
+
+    .form-group input.error,
+    .form-group select.error {
+      border-color: #c0392b;
+    }
+
+    .err-msg {
+      color: #c0392b;
+      font-size: 0.75rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .api-error-banner {
+      background: #fdf0ee;
+      border: 1px solid #e8b4ae;
+      border-radius: 3px;
+      color: #c0392b;
+      font-size: 0.82rem;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 15px;
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s, transform 0.1s, opacity 0.2s;
+      font-family: 'Inter', sans-serif;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 30%, rgba(201,168,76,0.2) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+
+    .submit-btn:hover:not(:disabled) { background: #2e2010; }
+    .submit-btn:hover:not(:disabled)::after { transform: translateX(100%); }
+    .submit-btn:active:not(:disabled) { transform: scale(0.99); }
+    .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── SUCCESS ── */
+    .success-view {
+      display: none;
+      text-align: center;
+      padding: 56px 32px 48px;
+      color: var(--dark);
+    }
+
+    .success-ring {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 1.8rem;
+      animation: pulsering 0.6s ease both;
+    }
+
+    @keyframes pulsering {
+      from { transform: scale(0.6); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+
+    .success-view h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+
+    .success-view p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      line-height: 1.7;
+    }
+
+    .confirm-card {
+      margin-top: 24px;
+      text-align: left;
+      background: var(--cream);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 4px;
+      padding: 20px 22px;
+    }
+
+    .confirm-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      font-size: 0.85rem;
+    }
+
+    .confirm-row:last-child { border-bottom: none; }
+
+    .confirm-row .ck { color: var(--text-muted); font-size: 0.78rem; letter-spacing: 0.06em; }
+    .confirm-row .cv { font-weight: 500; color: var(--dark); }
+
+    .confirm-code {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    .btn-again {
+      margin-top: 24px;
+      padding: 11px 28px;
+      border: 1px solid var(--dark);
+      background: transparent;
+      color: var(--dark);
+      border-radius: 3px;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .btn-again:hover { background: var(--warm); }
+
+    /* ── LOOKUP SECTION ── */
+    .section-lookup {
+      background: var(--warm);
+      border-top: 1px solid rgba(201,168,76,0.2);
+    }
+
+    .lookup-inner {
+      display: block;
+      max-width: 640px;
+    }
+
+    .lookup-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+
+    .lookup-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 10px;
+    }
+
+    .lookup-desc {
+      font-family: 'Noto Serif TC', serif;
+      font-weight: 300;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .lookup-card {
+      background: #fff;
+      border-radius: 4px;
+      box-shadow: 0 8px 32px rgba(26,18,8,0.09);
+    }
+
+    .lookup-card-header {
+      background: var(--dark);
+      padding: 22px 32px;
+      border-radius: 4px 4px 0 0;
+    }
+
+    .lookup-card-header h3 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: #fff;
+    }
+
+    .lookup-card-header p {
+      margin-top: 4px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .lookup-body { padding: 28px 32px 32px; }
+
+    .lookup-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .lookup-row .form-group { flex: 1; margin-bottom: 0; }
+
+    .lookup-btn {
+      padding: 12px 24px;
+      background: var(--dark);
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+      flex-shrink: 0;
+      margin-top: 0;
+      transition: background 0.2s, opacity 0.2s;
+      height: 46px;
+      align-self: flex-end;
+    }
+
+    .lookup-btn:hover:not(:disabled) { background: #2e2010; }
+    .lookup-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    /* ── DETAIL SECTION ── */
+    #detail-section { display: none; }
+
+    .detail-card {
+      margin-top: 24px;
+      background: var(--cream);
+      border: 1px solid rgba(201,168,76,0.3);
+      border-radius: 4px;
+      padding: 20px 22px;
+    }
+
+    .detail-card .confirm-row .cv.status-pending   { color: #b07d10; }
+    .detail-card .confirm-row .cv.status-confirmed { color: #2e7d32; }
+    .detail-card .confirm-row .cv.status-cancelled { color: #c0392b; }
+
+    .detail-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 22px;
+      border-radius: 3px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s, opacity 0.2s;
+    }
+
+    .action-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .action-cancel {
+      border: 1px solid #c0392b;
+      background: transparent;
+      color: #c0392b;
+    }
+
+    .action-cancel:hover:not(:disabled) { background: #fdf0ee; }
+
+    .action-modify {
+      border: 1px solid var(--dark);
+      background: transparent;
+      color: var(--dark);
+    }
+
+    .action-modify:hover:not(:disabled) { background: var(--warm); }
+
+    /* ── MODIFY FORM ── */
+    #modify-form-wrap {
+      display: none;
+      margin-top: 24px;
+      background: var(--cream);
+      border: 1px solid #e8e0d4;
+      border-radius: 4px;
+      padding: 20px 22px;
+    }
+
+    #modify-form-wrap h4 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--dark);
+      margin-bottom: 16px;
+    }
+
+    .btn-lookup-reset {
+      margin-top: 24px;
+      padding: 11px 28px;
+      border: 1px solid var(--dark);
+      background: transparent;
+      color: var(--dark);
+      border-radius: 3px;
+      font-size: 0.8rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+
+    .btn-lookup-reset:hover { background: rgba(26,18,8,0.06); }
+
+    /* ── AVAILABILITY CALENDAR ── */
+    .avail-calendar {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid #ddd6c8;
+      border-radius: 6px;
+      overflow: hidden;
+      color: #1a1208;
+      user-select: none;
+    }
+
+    .avail-cal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      background: #f5f0e8;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #1a1208;
+    }
+
+    .avail-cal-btn {
+      background: none;
+      border: none;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #c9a84c;
+      padding: 2px 8px;
+      border-radius: 3px;
+      line-height: 1;
+      font-family: inherit;
+    }
+    .avail-cal-btn:hover { background: rgba(201,168,76,0.2); }
+
+    .avail-cal-legend {
+      display: flex;
+      gap: 12px;
+      padding: 5px 10px;
+      background: #faf8f3;
+      border-bottom: 1px solid #e8e0d0;
+      font-size: 0.7rem;
+      color: #5a4a35;
+    }
+
+    .avail-legend-dot {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .avail-legend-dot::before {
+      content: '';
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+    .avail-legend-dot.open::before { background: #fff; border: 1px solid #ccc; }
+    .avail-legend-dot.full::before { background: #f1b0b7; }
+
+    .avail-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 3px;
+      padding: 8px;
+      background: #ede8df;
+    }
+
+    .avail-cell {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 4px;
+      padding: 4px 2px;
+      min-height: 38px;
+      font-size: 0.74rem;
+      cursor: pointer;
+      transition: filter 0.1s;
+      line-height: 1.3;
+    }
+    .avail-cell.avail-head {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #8a7a65;
+      background: transparent;
+      cursor: default;
+      min-height: 20px;
+    }
+    .avail-cell.avail-empty { background: transparent; cursor: default; }
+    .avail-cell.open        { background: #fff; color: #1a1208; border: 1px solid #e8e0d0; }
+    .avail-cell.limited     { background: #fff; color: #1a1208; border: 1px solid #e8e0d0; }
+    .avail-cell.full        { background: #f1b0b7; color: #6b1520; cursor: not-allowed; }
+    .avail-cell.past        { background: #f0f0f0; color: #c0b8b0; cursor: not-allowed; border: 1px solid transparent; }
+    .avail-cell.open:hover,
+    .avail-cell.limited:hover { background: #f5f0e8; }
+    .avail-cell.selected     { outline: 2px solid #c9a84c; outline-offset: -2px; }
+
+    .avail-day-num   { font-weight: 500; }
+    .avail-day-label { font-size: 0.6rem; }
+
+    .avail-cal-loading {
+      padding: 20px;
+      text-align: center;
+      color: #aaa;
+      font-size: 0.8rem;
+    }
+
+    .avail-day-sub { font-size: 0.62rem; line-height: 1; margin-top: 2px; }
+
+    /* ── DATE PICKER ── */
+    .date-picker { position: relative; }
+
+    .date-picker-btn {
+      width: 100%;
+      background: #fff;
+      border: 1px solid #d0c8b8;
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      text-align: left;
+      transition: border-color 0.2s;
+      color: #999;
+    }
+    .date-picker-btn.has-value { color: #1a1208; }
+    .date-picker-btn:hover,
+    .date-picker-btn.open { border-color: #c9a84c; }
+
+    .dp-arrow {
+      font-size: 0.7rem;
+      color: #8a7a65;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+      margin-left: 6px;
+    }
+    .date-picker-btn.open .dp-arrow { transform: rotate(180deg); }
+
+    .date-picker-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      z-index: 200;
+      width: 100%;
+      min-width: 260px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .date-picker-dropdown .avail-calendar { margin-top: 0; border-radius: 0; border: none; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #110d04;
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+      padding: 28px;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+    }
+
+    footer span { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-tag">Fine Dining · Reservation</div>
+    <h1>Cuisine <em>Créative</em><br/>de Ruru</h1>
+    <p class="hero-sub">每一餐，都是一段值得珍藏的記憶</p>
+  </div>
+  <div class="hero-scroll" onclick="document.getElementById('reserve').scrollIntoView({behavior:'smooth'})">
+    訂位
+  </div>
+</section>
+
+<!-- RESERVATION -->
+<section class="section-reserve" id="reserve">
+  <div class="section-inner">
+
+    <!-- 左側資訊 -->
+    <div class="info-col">
+      <div class="section-eyebrow">Table Reservation</div>
+      <h2>預約您的<br/>專屬座位</h2>
+      <div class="divider"></div>
+      <p>
+        我們相信每一次用餐都應該是完美的體驗。
+        請提前訂位，讓我們為您精心準備，
+        從餐桌擺設到每道料理，無微不至。
+      </p>
+      <div class="info-items">
+        <div class="info-item">
+          <div class="info-icon">🕐</div>
+          <div>
+            <div class="info-label">營業時間</div>
+            <div class="info-value">午餐 11:30 – 14:00<br/>晚餐 17:30 – 21:00</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📞</div>
+          <div>
+            <div class="info-label">電話訂位</div>
+            <div class="info-value">02-2345-6789</div>
+          </div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📍</div>
+          <div>
+            <div class="info-label">地址</div>
+            <div class="info-value">台北市大安區仁愛路四段 100 號</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右側表單 -->
+    <div class="form-card">
+      <!-- 表單 -->
+      <div id="form-view">
+        <div class="form-card-header">
+          <h3>線上訂位</h3>
+          <p>如如的創意料理 · 請填寫以下資料</p>
+        </div>
+        <div class="form-body">
+          <div class="api-error-banner" id="form-api-error"></div>
+          <form id="resForm" novalidate>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>姓名 *</label>
+                <input type="text" id="f-name" placeholder="王小明" />
+                <div class="err-msg" id="e-name">請輸入姓名</div>
+              </div>
+              <div class="form-group">
+                <label>電話</label>
+                <input type="tel" id="f-phone" placeholder="0912-345-678" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Email *</label>
+              <input type="email" id="f-email" placeholder="example@email.com" />
+              <div class="err-msg" id="e-email">請輸入有效的 Email</div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>日期 *</label>
+                <div class="date-picker" id="f-date-picker">
+                  <button type="button" class="date-picker-btn" id="f-date-btn" onclick="toggleDatePicker('f')">
+                    <span id="f-date-display">請選擇日期</span>
+                    <span class="dp-arrow">▾</span>
+                  </button>
+                  <div class="date-picker-dropdown" id="f-date-dropdown" style="display:none;">
+                    <div id="booking-avail-cal" class="avail-calendar"></div>
+                  </div>
+                </div>
+                <input type="hidden" id="f-date" />
+                <div class="err-msg" id="e-date">請選擇日期</div>
+              </div>
+              <div class="form-group">
+                <label>時段 *</label>
+                <select id="f-time">
+                  <option value="">選擇時段</option>
+                </select>
+                <div class="err-msg" id="e-time">請選擇時段</div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>用餐人數 *</label>
+              <select id="f-guests">
+                <option value="">選擇人數</option>
+                <option value="1">1 位</option><option value="2">2 位</option>
+                <option value="3">3 位</option><option value="4">4 位</option>
+                <option value="5">5 位</option><option value="6">6 位</option>
+                <option value="7">7 位</option><option value="8">8 位</option>
+              </select>
+              <div class="err-msg" id="e-guests">請選擇人數</div>
+            </div>
+
+            <div class="form-group">
+              <label>特殊需求（選填）</label>
+              <input type="text" id="f-note" placeholder="過敏食材、座位偏好、慶生安排…" />
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">確認訂位</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- 成功畫面 -->
+      <div class="success-view" id="success-view">
+        <div class="success-ring">✓</div>
+        <h3>訂位已確認</h3>
+        <p>感謝您的預約，確認信已發送至您的 Email。<br/>期待在如如的創意料理與您相遇。</p>
+        <div class="confirm-card" id="confirm-card"></div>
+        <button class="btn-again" onclick="resetForm()">再次訂位</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- LOOKUP SECTION -->
+<section class="section-lookup" id="lookup">
+  <div class="section-inner lookup-inner">
+    <div class="lookup-eyebrow">Reservation Lookup</div>
+    <h2 class="lookup-title">查詢 / 修改 / 取消訂位</h2>
+    <p class="lookup-desc">請輸入訂位確認碼查詢您的訂位狀態，並可視需要修改日期時段或取消訂位。</p>
+
+    <div class="lookup-card">
+      <div class="lookup-card-header">
+        <h3>訂位查詢</h3>
+        <p>輸入訂位確認碼（例如：LT-1A2B3C4D）</p>
+      </div>
+      <div class="lookup-body">
+        <div class="lookup-row">
+          <div class="form-group">
+            <input type="text" id="l-code" placeholder="LT-XXXXXXXX" style="text-transform:uppercase;" />
+            <div class="err-msg" id="e-lcode">請輸入確認碼</div>
+          </div>
+          <button class="lookup-btn" id="lookup-btn" onclick="doLookup()">查詢</button>
+        </div>
+        <div class="api-error-banner" id="lookup-api-error" style="margin-top:12px;"></div>
+
+        <!-- 訂位詳情 -->
+        <div id="detail-section">
+          <div class="detail-card" id="detail-card"></div>
+
+          <div class="detail-actions">
+            <button class="action-btn action-cancel" id="cancel-btn" onclick="doCancel()">取消訂位</button>
+            <button class="action-btn action-modify" id="modify-toggle-btn" onclick="toggleModify()">修改日期/時段</button>
+          </div>
+          <div class="api-error-banner" id="cancel-api-error" style="margin-top:12px;"></div>
+
+          <!-- 修改表單 -->
+          <div id="modify-form-wrap">
+            <h4>修改訂位</h4>
+            <div class="api-error-banner" id="modify-api-error"></div>
+            <form id="modifyForm" novalidate>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>新日期 *</label>
+                  <div class="date-picker" id="m-date-picker">
+                    <button type="button" class="date-picker-btn" id="m-date-btn" onclick="toggleDatePicker('m')">
+                      <span id="m-date-display">請選擇日期</span>
+                      <span class="dp-arrow">▾</span>
+                    </button>
+                    <div class="date-picker-dropdown" id="m-date-dropdown" style="display:none;">
+                      <div id="modify-avail-cal" class="avail-calendar"></div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="m-date" />
+                </div>
+                <div class="form-group">
+                  <label>新時段 *</label>
+                  <select id="m-time"></select>
+                </div>
+                <div class="form-group">
+                  <label>人數 *</label>
+                  <select id="m-party">
+                    <option value="1">1 位</option>
+                    <option value="2">2 位</option>
+                    <option value="3">3 位</option>
+                    <option value="4">4 位</option>
+                    <option value="5">5 位</option>
+                    <option value="6">6 位</option>
+                    <option value="7">7 位</option>
+                    <option value="8">8 位</option>
+                  </select>
+                </div>
+              </div>
+              <button type="submit" class="submit-btn" id="modify-submit-btn">確認修改</button>
+            </form>
+          </div>
+
+          <br/>
+          <button class="btn-lookup-reset" onclick="resetLookup()">查詢其他訂位</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  © 2025 <span>Cuisine Créative de Ruru</span> · 台北市大安區仁愛路四段 100 號 · 02-2345-6789
+</footer>
+
+<script>
+  /* ── 常數 ── */
+  const API_BASE = '';
+
+  const TIME_SLOTS = [
+    '午餐 11:30', '午餐 12:00', '午餐 12:30', '午餐 13:00', '午餐 13:30',
+    '晚餐 17:30', '晚餐 18:00', '晚餐 18:30', '晚餐 19:00', '晚餐 19:30',
+    '晚餐 20:00', '晚餐 20:30',
+  ];
+
+  /* ── 日期可用性日曆 ── */
+  const _calState = {};
+
+  async function _fetchDailyAvail(from, to) {
+    try {
+      const r = await fetch(`${API_BASE}/api/reservations/daily-availability?from=${from}&to=${to}`);
+      if (!r.ok) return {};
+      const data = await r.json();
+      const map = {};
+      data.dates.forEach(d => { map[d.date] = { lunch: d.lunch_available, dinner: d.dinner_available }; });
+      return map;
+    } catch { return {}; }
+  }
+
+  function _padDate(y, m, d) {
+    return `${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+  }
+
+  async function renderAvailCalendar(cid, year, month, onSelect, selectedDate) {
+    const el = document.getElementById(cid);
+    if (!el) return;
+    el.innerHTML = '<div class="avail-cal-loading">載入中…</div>';
+
+    const firstStr = _padDate(year, month, 1);
+    const lastDay = new Date(year, month, 0).getDate();
+    const lastStr = _padDate(year, month, lastDay);
+    const availMap = await _fetchDailyAvail(firstStr, lastStr);
+    _calState[cid] = { year, month, onSelect, selectedDate: selectedDate || null, availMap };
+
+    const today = new Date().toISOString().split('T')[0];
+    const mNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    const wds = ['一','二','三','四','五','六','日'];
+    const firstWd = new Date(year, month - 1, 1).getDay();
+    const offset = firstWd === 0 ? 6 : firstWd - 1;
+
+    let h = `
+      <div class="avail-cal-header">
+        <button class="avail-cal-btn" onclick="event.stopPropagation();_navCal('${cid}',-1)">‹</button>
+        <span>${year}年 ${mNames[month-1]}</span>
+        <button class="avail-cal-btn" onclick="event.stopPropagation();_navCal('${cid}',1)">›</button>
+      </div>
+      <div class="avail-cal-legend">
+        <span class="avail-legend-dot open">有空位</span>
+        <span class="avail-legend-dot full">全天額滿</span>
+      </div>
+      <div class="avail-cal-grid">
+    `;
+    wds.forEach(w => { h += `<div class="avail-cell avail-head">${w}</div>`; });
+    for (let i = 0; i < offset; i++) h += '<div class="avail-cell avail-empty"></div>';
+
+    for (let d = 1; d <= lastDay; d++) {
+      const ds = _padDate(year, month, d);
+      const isPast = ds < today;
+      const info = availMap[ds] ?? null;
+      const isSel = ds === selectedDate;
+      let cls = 'avail-cell avail-day';
+      let sub = '';
+      let clickable = false;
+
+      if (isPast) {
+        cls += ' past';
+      } else if (info !== null) {
+        const hasAny = info.lunch > 0 || info.dinner > 0;
+        cls += hasAny ? ' open' : ' full';
+        clickable = hasAny;
+      }
+      if (isSel) cls += ' selected';
+
+      const oc = clickable ? `onclick="event.stopPropagation();selectCalDate('${cid}','${ds}')"` : '';
+      h += `<div class="${cls}" ${oc} data-date="${ds}">
+        <span class="avail-day-num">${d}</span>
+      </div>`;
+    }
+    h += '</div>';
+    el.innerHTML = h;
+  }
+
+  async function _navCal(cid, delta) {
+    const s = _calState[cid];
+    if (!s) return;
+    let { year, month, onSelect, selectedDate } = s;
+    month += delta;
+    if (month > 12) { month = 1; year++; }
+    if (month < 1)  { month = 12; year--; }
+    const now = new Date();
+    if (year < now.getFullYear() || (year === now.getFullYear() && month < now.getMonth() + 1)) return;
+    await renderAvailCalendar(cid, year, month, onSelect, selectedDate);
+  }
+
+  function selectCalDate(cid, ds) {
+    const s = _calState[cid];
+    if (!s) return;
+    s.selectedDate = ds;
+    const el = document.getElementById(cid);
+    el.querySelectorAll('.avail-day').forEach(c => c.classList.remove('selected'));
+    const cell = el.querySelector(`[data-date="${ds}"]`);
+    if (cell) cell.classList.add('selected');
+    s.onSelect(ds);
+  }
+
+  /* ── 日期選擇器 ── */
+  function formatDateDisplay(ds) {
+    const [y, m, d] = ds.split('-').map(Number);
+    const wds = ['日','一','二','三','四','五','六'];
+    return `${y}年${m}月${d}日（週${wds[new Date(y, m-1, d).getDay()]}）`;
+  }
+
+  function _calOnSelect(prefix) {
+    if (prefix === 'f') {
+      return (ds) => {
+        document.getElementById('f-date').value = ds;
+        document.getElementById('f-date-display').textContent = formatDateDisplay(ds);
+        document.getElementById('f-date-btn').classList.add('has-value');
+        document.getElementById('f-date-btn').classList.remove('open');
+        document.getElementById('f-date-dropdown').style.display = 'none';
+        fetchSlots(ds, 'f-time');
+      };
+    } else {
+      return (ds) => {
+        document.getElementById('m-date').value = ds;
+        document.getElementById('m-date-display').textContent = formatDateDisplay(ds);
+        document.getElementById('m-date-btn').classList.add('has-value');
+        document.getElementById('m-date-btn').classList.remove('open');
+        document.getElementById('m-date-dropdown').style.display = 'none';
+        fetchModifySlots(ds);
+      };
+    }
+  }
+
+  function toggleDatePicker(prefix) {
+    const dropdown = document.getElementById(`${prefix}-date-dropdown`);
+    const btn = document.getElementById(`${prefix}-date-btn`);
+    const isOpen = dropdown.style.display !== 'none';
+
+    // 關閉所有下拉
+    ['f', 'm'].forEach(p => {
+      const dd = document.getElementById(`${p}-date-dropdown`);
+      const b  = document.getElementById(`${p}-date-btn`);
+      if (dd) { dd.style.display = 'none'; b && b.classList.remove('open'); }
+    });
+
+    if (!isOpen) {
+      dropdown.style.display = 'block';
+      btn.classList.add('open');
+      const cid = prefix === 'f' ? 'booking-avail-cal' : 'modify-avail-cal';
+      const curVal = document.getElementById(`${prefix}-date`).value;
+      const s = _calState[cid];
+      if (!s) {
+        const n = new Date();
+        let cy = n.getFullYear(), cm = n.getMonth() + 1;
+        if (curVal) {
+          const [vy, vm] = curVal.split('-').map(Number);
+          if (vy > cy || (vy === cy && vm > cm)) { cy = vy; cm = vm; }
+        }
+        renderAvailCalendar(cid, cy, cm, _calOnSelect(prefix), curVal || null);
+      } else if (curVal && curVal !== s.selectedDate) {
+        // 外部設值了（如 toggleModify 預填），更新選取狀態
+        s.selectedDate = curVal;
+        const el = document.getElementById(cid);
+        el.querySelectorAll('.avail-day').forEach(c => c.classList.remove('selected'));
+        const cell = el.querySelector(`[data-date="${curVal}"]`);
+        if (cell) cell.classList.add('selected');
+      }
+    }
+  }
+
+  /* ── 初始化 ── */
+  (function init() {
+    // 填入 TIME_SLOTS 到訂位表單
+    document.getElementById('f-time').innerHTML = '<option value="">請先選擇日期</option>';
+    document.getElementById('m-time').innerHTML = '<option value="">請先選擇日期</option>';
+
+    // 預載訂位日曆（背景載入，點開時直接顯示）
+    const _n = new Date();
+    renderAvailCalendar('booking-avail-cal', _n.getFullYear(), _n.getMonth() + 1, _calOnSelect('f'));
+
+    // 點選選擇器外側時關閉下拉
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#f-date-picker') && !e.target.closest('#f-date-btn')) {
+        const dd = document.getElementById('f-date-dropdown');
+        const b  = document.getElementById('f-date-btn');
+        if (dd) { dd.style.display = 'none'; b && b.classList.remove('open'); }
+      }
+      if (!e.target.closest('#m-date-picker') && !e.target.closest('#m-date-btn')) {
+        const dd = document.getElementById('m-date-dropdown');
+        const b  = document.getElementById('m-date-btn');
+        if (dd) { dd.style.display = 'none'; b && b.classList.remove('open'); }
+      }
+    });
+  })();
+
+  /* ── 統一 API 錯誤處理 ── */
+  function getApiErrorMessage(status, body) {
+    if (!body || !body.error) return '發生未知錯誤，請稍後再試';
+    const code = body.error.code;
+    if (code === 'SLOT_FULL')                   return '此時段已滿，請選擇其他時段';
+    if (code === 'CONFLICT')                    return '此 email 在該日期時段已有訂位';
+    if (code === 'CANCELLATION_DEADLINE_PASSED') return '已超過取消截止時間（訂位日前一天 23:59）';
+    if (code === 'NOT_FOUND')                   return '找不到此確認碼的訂位';
+    if (code === 'VALIDATION_ERROR')            return body.error.message || '欄位驗證失敗';
+    return body.error.message || '發生錯誤，請稍後再試';
+  }
+
+  function showBanner(id, msg) {
+    const el = document.getElementById(id);
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideBanner(id) {
+    const el = document.getElementById(id);
+    el.textContent = '';
+    el.style.display = 'none';
+  }
+
+  /* ── 訂位表單 ── */
+  function validateForm() {
+    const rules = [
+      { id:'f-name',   eid:'e-name',   ok: v => v.trim().length > 0 },
+      { id:'f-email',  eid:'e-email',  ok: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) },
+      { id:'f-date',   eid:'e-date',   ok: v => v !== '' },
+      { id:'f-time',   eid:'e-time',   ok: v => v !== '' },
+      { id:'f-guests', eid:'e-guests', ok: v => v !== '' },
+    ];
+    let pass = true;
+    rules.forEach(r => {
+      const el = document.getElementById(r.id);
+      const em = document.getElementById(r.eid);
+      if (r.ok(el.value)) {
+        el.classList.remove('error');
+        em.style.display = 'none';
+      } else {
+        el.classList.add('error');
+        em.style.display = 'block';
+        pass = false;
+      }
+    });
+    return pass;
+  }
+
+  document.getElementById('resForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!validateForm()) return;
+
+    hideBanner('form-api-error');
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '處理中…';
+
+    const get = id => document.getElementById(id).value;
+    const body = {
+      customer_name:  get('f-name').trim(),
+      customer_email: get('f-email').trim(),
+      customer_phone: get('f-phone').trim() || undefined,
+      date:           get('f-date'),
+      time_slot:      get('f-time'),
+      party_size:     parseInt(get('f-guests'), 10),
+    };
+    const note = get('f-note').trim();
+    if (note) body.special_requests = note;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/reservations`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (res.status === 400 && data.error && data.error.fields) {
+        // 欄位層級驗證錯誤
+        const fieldMap = { customer_name:'e-name', customer_email:'e-email', date:'e-date', time_slot:'e-time', party_size:'e-guests' };
+        data.error.fields.forEach(f => {
+          const eid = fieldMap[f.field];
+          if (eid) {
+            const em = document.getElementById(eid);
+            em.textContent = f.message || '欄位錯誤';
+            em.style.display = 'block';
+            document.getElementById(eid.replace('e-','f-'))?.classList.add('error');
+          }
+        });
+        return;
+      }
+
+      if (!res.ok) {
+        showBanner('form-api-error', getApiErrorMessage(res.status, data));
+        return;
+      }
+
+      // 成功
+      const rows = [
+        ['訂位編號', `<span class="confirm-code">${data.confirmation_code}</span>`],
+        ['姓名',     data.customer_name],
+        ['日期',     data.date],
+        ['時段',     data.time_slot],
+        ['人數',     data.party_size + ' 位'],
+        ['聯絡 Email', data.customer_email],
+      ];
+      if (data.special_requests) rows.push(['特殊需求', data.special_requests]);
+
+      document.getElementById('confirm-card').innerHTML =
+        rows.map(([k, val]) =>
+          `<div class="confirm-row"><span class="ck">${k}</span><span class="cv">${val}</span></div>`
+        ).join('');
+
+      document.getElementById('form-view').style.display = 'none';
+      document.getElementById('success-view').style.display = 'block';
+    } catch (err) {
+      showBanner('form-api-error', '無法連線到伺服器，請確認 API 是否啟動（localhost:3000）');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '確認訂位';
+    }
+  });
+
+  function resetForm() {
+    document.getElementById('resForm').reset();
+    hideBanner('form-api-error');
+    document.getElementById('form-view').style.display = 'block';
+    document.getElementById('success-view').style.display = 'none';
+  }
+
+  /* ── 訂位查詢 ── */
+  let currentReservation = null;
+
+  async function doLookup() {
+    const codeEl = document.getElementById('l-code');
+    const code = codeEl.value.trim().toUpperCase();
+    const errEl = document.getElementById('e-lcode');
+
+    if (!code) {
+      errEl.style.display = 'block';
+      return;
+    }
+    errEl.style.display = 'none';
+    hideBanner('lookup-api-error');
+
+    const btn = document.getElementById('lookup-btn');
+    btn.disabled = true;
+    btn.textContent = '查詢中…';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/reservations/${encodeURIComponent(code)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        showBanner('lookup-api-error', getApiErrorMessage(res.status, data));
+        document.getElementById('detail-section').style.display = 'none';
+        return;
+      }
+
+      currentReservation = data;
+      renderDetail(data);
+      document.getElementById('detail-section').style.display = 'block';
+      document.getElementById('modify-form-wrap').style.display = 'none';
+    } catch (err) {
+      showBanner('lookup-api-error', '無法連線到伺服器，請確認 API 是否啟動（localhost:3000）');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '查詢';
+    }
+  }
+
+  function renderDetail(r) {
+    const statusMap = { pending: '待確認', confirmed: '已確認', cancelled: '已取消' };
+    const statusClass = `status-${r.status}`;
+    const rows = [
+      ['訂位編號', `<span class="confirm-code">${r.confirmation_code}</span>`],
+      ['姓名',     r.customer_name],
+      ['日期',     r.date],
+      ['時段',     r.time_slot],
+      ['人數',     r.party_size + ' 位'],
+      ['狀態',     `<span class="${statusClass}">${statusMap[r.status] || r.status}</span>`],
+    ];
+    if (r.special_requests) rows.push(['特殊需求', r.special_requests]);
+
+    document.getElementById('detail-card').innerHTML =
+      rows.map(([k, val]) =>
+        `<div class="confirm-row"><span class="ck">${k}</span><span class="cv">${val}</span></div>`
+      ).join('');
+
+    // 取消按鈕：已取消則隱藏
+    const cancelBtn = document.getElementById('cancel-btn');
+    const modifyBtn = document.getElementById('modify-toggle-btn');
+    if (r.status === 'cancelled') {
+      cancelBtn.style.display = 'none';
+      modifyBtn.style.display = 'none';
+    } else {
+      cancelBtn.style.display = '';
+      modifyBtn.style.display = '';
+    }
+
+    hideBanner('cancel-api-error');
+
+  }
+
+  function resetLookup() {
+    document.getElementById('l-code').value = '';
+    document.getElementById('e-lcode').style.display = 'none';
+    hideBanner('lookup-api-error');
+    hideBanner('cancel-api-error');
+    hideBanner('modify-api-error');
+    document.getElementById('detail-section').style.display = 'none';
+    document.getElementById('modify-form-wrap').style.display = 'none';
+    currentReservation = null;
+  }
+
+  /* ── 取消訂位 ── */
+  async function doCancel() {
+    if (!currentReservation) return;
+    hideBanner('cancel-api-error');
+
+    const btn = document.getElementById('cancel-btn');
+    btn.disabled = true;
+    btn.textContent = '處理中…';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/reservations/${encodeURIComponent(currentReservation.confirmation_code)}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showBanner('cancel-api-error', getApiErrorMessage(res.status, data));
+        return;
+      }
+
+      currentReservation = data;
+      renderDetail(data);
+    } catch (err) {
+      showBanner('cancel-api-error', '無法連線到伺服器，請稍後再試');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '取消訂位';
+    }
+  }
+
+  /* ── 修改訂位 ── */
+  async function fetchSlots(date, selId, excludeCode) {
+    const sel = document.getElementById(selId);
+    sel.innerHTML = '<option value="">載入中…</option>';
+    sel.disabled = true;
+    try {
+      const url = `${API_BASE}/api/reservations/availability?date=${date}` +
+                  (excludeCode ? `&exclude_code=${encodeURIComponent(excludeCode)}` : '');
+      const res = await fetch(url);
+      const data = await res.json();
+      sel.innerHTML = '<option value="">請選擇時段</option>';
+      data.slots.forEach(({ slot, available, remaining }) => {
+        const opt = document.createElement('option');
+        opt.value = available ? slot : '';
+        opt.disabled = !available;
+        opt.textContent = available ? `${slot}（有空位）` : `${slot}（無空位）`;
+        sel.appendChild(opt);
+      });
+    } catch {
+      sel.innerHTML = '<option value="">無法載入時段</option>';
+    }
+    sel.disabled = false;
+  }
+
+  function fetchModifySlots(date) {
+    const code = currentReservation ? currentReservation.confirmation_code : '';
+    return fetchSlots(date, 'm-time', code);
+  }
+
+  document.getElementById('m-date').addEventListener('change', e => {
+    if (e.target.value) fetchModifySlots(e.target.value);
+  });
+
+  function toggleModify() {
+    const wrap = document.getElementById('modify-form-wrap');
+    const isHidden = wrap.style.display === 'none' || wrap.style.display === '';
+    wrap.style.display = isHidden ? 'block' : 'none';
+    hideBanner('modify-api-error');
+    if (isHidden && currentReservation) {
+      // 預填目前訂位資料
+      document.getElementById('m-date').value = currentReservation.date;
+      document.getElementById('m-date-display').textContent = formatDateDisplay(currentReservation.date);
+      document.getElementById('m-date-btn').classList.add('has-value');
+      document.getElementById('m-party').value = currentReservation.party_size;
+      fetchModifySlots(currentReservation.date).then(() => {
+        document.getElementById('m-time').value = currentReservation.time_slot;
+      });
+      // 清除舊日曆狀態，讓下次點選時重新載入正確月份
+      delete _calState['modify-avail-cal'];
+    }
+  }
+
+  document.getElementById('modifyForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!currentReservation) return;
+    hideBanner('modify-api-error');
+
+    const newDate = document.getElementById('m-date').value;
+    const newSlot = document.getElementById('m-time').value;
+    const newParty = parseInt(document.getElementById('m-party').value, 10);
+
+    if (!newDate || !newSlot) {
+      showBanner('modify-api-error', '請選擇日期與時段');
+      return;
+    }
+
+    const btn = document.getElementById('modify-submit-btn');
+    btn.disabled = true;
+    btn.textContent = '處理中…';
+
+    try {
+      const res = await fetch(`${API_BASE}/api/reservations/${encodeURIComponent(currentReservation.confirmation_code)}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: newDate, time_slot: newSlot, party_size: newParty }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showBanner('modify-api-error', getApiErrorMessage(res.status, data));
+        return;
+      }
+
+      currentReservation = data;
+      renderDetail(data);
+      document.getElementById('modify-form-wrap').style.display = 'none';
+    } catch (err) {
+      showBanner('modify-api-error', '無法連線到伺服器，請稍後再試');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '確認修改';
+    }
+  });
+
+  // 支援按 Enter 觸發查詢
+  document.getElementById('l-code').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); doLookup(); }
+  });
+</script>
+</body>
+</html>

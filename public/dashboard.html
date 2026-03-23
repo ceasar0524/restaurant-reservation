@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>如如的創意料理 — 管理後台</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --gold: #c9a84c;
+      --dark: #1a1208;
+      --cream: #faf6ef;
+      --warm: #f0e8d8;
+      --muted: #8a7a65;
+      --error: #c0392b;
+      --success: #27ae60;
+      --border: #e8e0d4;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--cream);
+      min-height: 100vh;
+      color: var(--dark);
+    }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: var(--dark);
+      padding: 0 28px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .topbar-brand {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 400;
+    }
+
+    .topbar-brand span {
+      color: var(--gold);
+      font-size: 0.65rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-left: 12px;
+      vertical-align: middle;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.25);
+      color: rgba(255,255,255,0.6);
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 2px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .logout-btn:hover { border-color: rgba(255,255,255,0.6); color: #fff; }
+
+    /* ── Main ── */
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 24px;
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    /* ── Filters ── */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .filter-group label {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .filter-group input,
+    .filter-group select {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.88rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .filter-group input:focus,
+    .filter-group select:focus { border-color: var(--gold); }
+
+    .clear-btn {
+      padding: 8px 16px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.78rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      align-self: flex-end;
+    }
+
+    .clear-btn:hover { border-color: var(--muted); color: var(--dark); }
+
+    /* ── Error Banner ── */
+    .error-banner {
+      background: #fdf0ee;
+      border: 1px solid #e8b4ae;
+      border-radius: 3px;
+      color: var(--error);
+      font-size: 0.82rem;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.86rem;
+    }
+
+    thead {
+      background: var(--warm);
+    }
+
+    thead th {
+      padding: 12px 16px;
+      text-align: left;
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-top: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+
+    tbody tr:hover { background: #fdfaf6; }
+
+    td {
+      padding: 12px 16px;
+      vertical-align: middle;
+    }
+
+    /* ── Status Badge ── */
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 2px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+    }
+
+    .badge-pending    { background: #fef3cd; color: #856404; }
+    .badge-confirmed  { background: #d1f0da; color: #1a6b34; }
+    .badge-cancelled  { background: #f0e8e8; color: #8b2e2e; }
+    .badge-completed  { background: #e0e7ef; color: #3a4e6e; }
+    .badge-no_show    { background: #ece8f0; color: #5e4a7a; }
+
+    /* ── Action Buttons ── */
+    .action-btn {
+      padding: 4px 12px;
+      border-radius: 2px;
+      font-size: 0.72rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: opacity 0.15s;
+      margin-right: 4px;
+      white-space: nowrap;
+    }
+
+    .action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-confirm  { background: #d1f0da; border-color: #a0d8b3; color: #1a6b34; }
+    .btn-cancel   { background: #f0e8e8; border-color: #d4aeae; color: #8b2e2e; }
+    .btn-noshow   { background: #ece8f0; border-color: #c8b8d8; color: #5e4a7a; }
+
+    .btn-confirm:hover:not(:disabled)  { background: #b8e8c8; }
+    .btn-cancel:hover:not(:disabled)   { background: #e8d0d0; }
+    .btn-noshow:hover:not(:disabled)   { background: #ddd4ec; }
+
+    .row-error {
+      font-size: 0.72rem;
+      color: var(--error);
+      display: block;
+      margin-top: 4px;
+    }
+
+    /* ── Empty State ── */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    /* ── Pagination ── */
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .page-btn {
+      padding: 7px 18px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      font-size: 0.78rem;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+      color: var(--dark);
+    }
+
+    .page-btn:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+    .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Loading overlay ── */
+    .loading-row td {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- 3.1 dashboard.html 載入時驗證 sessionStorage -->
+<script>
+  const API_BASE = '';
+
+  (function checkAuth() {
+    if (!sessionStorage.getItem('accessToken')) {
+      location.replace('login.html');
+    }
+  })();
+</script>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    如如的創意料理
+    <span>Admin Portal</span>
+  </div>
+  <!-- 3.4 登出按鈕：清除 sessionStorage 並跳轉 login.html -->
+  <button class="logout-btn" id="logout-btn">登出</button>
+</div>
+
+<div class="main">
+  <h1 class="page-title">訂位管理</h1>
+
+  <div class="filters">
+    <!-- 4.2 日期篩選 -->
+    <div class="filter-group">
+      <label>日期</label>
+      <input type="date" id="filter-date" />
+    </div>
+    <!-- 4.3 狀態篩選 -->
+    <div class="filter-group">
+      <label>狀態</label>
+      <select id="filter-status">
+        <option value="">全部</option>
+        <option value="pending">待確認</option>
+        <option value="confirmed">已確認</option>
+        <option value="cancelled">已取消</option>
+        <option value="completed">已完成</option>
+        <option value="no_show">未到場</option>
+      </select>
+    </div>
+    <button class="clear-btn" id="clear-btn">清除篩選</button>
+  </div>
+
+  <div class="error-banner" id="error-banner"></div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>確認碼</th>
+          <th>姓名</th>
+          <th>日期</th>
+          <th>時段</th>
+          <th>人數</th>
+          <th>狀態</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <tr class="loading-row"><td colspan="7">載入中…</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4.4 分頁 -->
+  <div class="pagination">
+    <span id="page-info"></span>
+    <button class="page-btn" id="prev-btn" disabled>上一頁</button>
+    <button class="page-btn" id="next-btn" disabled>下一頁</button>
+  </div>
+</div>
+
+<script>
+  // ── 3.2 apiFetch：自動帶 Bearer，401 時刷新後重試 ──
+  async function apiFetch(url, options = {}, retry = true) {
+    const token = sessionStorage.getItem('accessToken');
+    const res = await fetch(url, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.status === 401 && retry) {
+      // 3.2 呼叫 refresh
+      const refreshRes = await fetch(`${API_BASE}/api/auth/refresh`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      if (refreshRes.ok) {
+        const { accessToken } = await refreshRes.json();
+        sessionStorage.setItem('accessToken', accessToken);
+        return apiFetch(url, options, false);
+      } else {
+        // 3.3 refresh 失敗，清除 session 並跳轉登入頁
+        sessionStorage.removeItem('accessToken');
+        location.replace('login.html');
+        return null;
+      }
+    }
+
+    return res;
+  }
+
+  // ── 3.4 登出 ──
+  document.getElementById('logout-btn').addEventListener('click', () => {
+    sessionStorage.removeItem('accessToken');
+    location.replace('login.html');
+  });
+
+  // ── State ──
+  let currentPage = 1;
+  let currentDate = '';
+  let currentStatus = '';
+
+  // ── 4.1 載入訂位列表 ──
+  async function loadReservations() {
+    const body = document.getElementById('table-body');
+    body.innerHTML = '<tr class="loading-row"><td colspan="7">載入中…</td></tr>';
+    hideError();
+
+    const params = new URLSearchParams({ page: currentPage, limit: 20 });
+    if (currentDate)   params.set('date', currentDate);
+    if (currentStatus) params.set('status', currentStatus);
+
+    let res;
+    try {
+      res = await apiFetch(`${API_BASE}/api/admin/reservations?${params}`);
+      if (!res) return; // redirected
+    } catch {
+      showError('無法連線到伺服器');
+      body.innerHTML = '';
+      return;
+    }
+
+    if (!res.ok) {
+      showError('載入訂位失敗，請稍後再試');
+      body.innerHTML = '';
+      return;
+    }
+
+    const { data, pagination } = await res.json();
+
+    // 4.5 空結果
+    if (!data || data.length === 0) {
+      body.innerHTML = '<tr><td colspan="7" class="empty-state">目前沒有符合條件的訂位</td></tr>';
+      updatePagination({ page: 1, totalPages: 1 });
+      return;
+    }
+
+    body.innerHTML = '';
+    data.forEach(r => {
+      const tr = buildRow(r);
+      body.appendChild(tr);
+    });
+
+    updatePagination(pagination);
+  }
+
+  // ── 4.4 分頁控制 ──
+  function updatePagination(pagination) {
+    const info = document.getElementById('page-info');
+    const prev = document.getElementById('prev-btn');
+    const next = document.getElementById('next-btn');
+
+    const { page, limit, total } = pagination;
+    const totalPages = Math.ceil(total / (limit || 20)) || 1;
+    info.textContent = `第 ${page} / ${totalPages} 頁（共 ${total} 筆）`;
+    prev.disabled = page <= 1;
+    next.disabled = page >= totalPages;
+  }
+
+  document.getElementById('prev-btn').addEventListener('click', () => {
+    if (currentPage > 1) { currentPage--; loadReservations(); }
+  });
+
+  document.getElementById('next-btn').addEventListener('click', () => {
+    currentPage++;
+    loadReservations();
+  });
+
+  // ── 4.2 日期篩選 ──
+  document.getElementById('filter-date').addEventListener('change', e => {
+    currentDate = e.target.value;
+    currentPage = 1;
+    loadReservations();
+  });
+
+  // ── 4.3 狀態篩選 ──
+  document.getElementById('filter-status').addEventListener('change', e => {
+    currentStatus = e.target.value;
+    currentPage = 1;
+    loadReservations();
+  });
+
+  // 清除篩選
+  document.getElementById('clear-btn').addEventListener('click', () => {
+    currentDate = '';
+    currentStatus = '';
+    currentPage = 1;
+    document.getElementById('filter-date').value = '';
+    document.getElementById('filter-status').value = '';
+    loadReservations();
+  });
+
+  // ── 5.1 依 status 決定顯示哪些按鈕 ──
+  const STATUS_ACTIONS = {
+    pending:   ['confirm', 'cancel'],
+    confirmed: ['cancel', 'noshow'],
+    cancelled: [],
+    completed: [],
+    no_show:   [],
+  };
+
+  const STATUS_LABELS = {
+    pending:   '待確認',
+    confirmed: '已確認',
+    cancelled: '已取消',
+    completed: '已完成',
+    no_show:   '未到場',
+  };
+
+  const STATUS_BADGE_CLASS = {
+    pending:   'badge-pending',
+    confirmed: 'badge-confirmed',
+    cancelled: 'badge-cancelled',
+    completed: 'badge-completed',
+    no_show:   'badge-no_show',
+  };
+
+  function buildRow(r) {
+    const tr = document.createElement('tr');
+    tr.dataset.id = r.id;
+
+    const statusBadge = `<span class="badge ${STATUS_BADGE_CLASS[r.status] || ''}">${STATUS_LABELS[r.status] || r.status}</span>`;
+
+    tr.innerHTML = `
+      <td>${r.confirmation_code}</td>
+      <td>${r.customer_name}</td>
+      <td>${r.date}</td>
+      <td>${r.time_slot}</td>
+      <td>${r.party_size}</td>
+      <td class="cell-status">${statusBadge}</td>
+      <td class="cell-actions">
+        ${buildActionButtons(r.status)}
+        <span class="row-error" style="display:none"></span>
+      </td>
+    `;
+
+    // 5.2 綁定按鈕事件
+    const actions = STATUS_ACTIONS[r.status] || [];
+    actions.forEach(action => {
+      const btn = tr.querySelector(`.btn-${action === 'noshow' ? 'noshow' : action}`);
+      if (btn) {
+        btn.addEventListener('click', () => handleStatusUpdate(tr, r.id, actionToStatus(action)));
+      }
+    });
+
+    return tr;
+  }
+
+  function buildActionButtons(status) {
+    const actions = STATUS_ACTIONS[status] || [];
+    if (actions.length === 0) return '—';
+    return actions.map(action => {
+      const cls = `btn-${action === 'noshow' ? 'noshow' : action}`;
+      const label = action === 'confirm' ? '確認' : action === 'cancel' ? '取消' : 'No Show';
+      return `<button class="action-btn ${cls}">${label}</button>`;
+    }).join('');
+  }
+
+  function actionToStatus(action) {
+    return { confirm: 'confirmed', cancel: 'cancelled', noshow: 'no_show' }[action];
+  }
+
+  // ── 5.2 狀態更新 ──
+  async function handleStatusUpdate(tr, id, newStatus) {
+    const buttons = tr.querySelectorAll('.action-btn');
+    const errorEl = tr.querySelector('.row-error');
+    errorEl.style.display = 'none';
+    buttons.forEach(b => { b.disabled = true; });
+
+    let res;
+    try {
+      res = await apiFetch(`${API_BASE}/api/admin/reservations/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      if (!res) return;
+    } catch {
+      // 5.3 顯示 inline 錯誤，保持原 status
+      errorEl.textContent = '更新失敗，請稍後再試';
+      errorEl.style.display = 'block';
+      buttons.forEach(b => { b.disabled = false; });
+      return;
+    }
+
+    if (!res.ok) {
+      // 5.3 API 錯誤，inline 顯示
+      errorEl.textContent = '更新失敗，請稍後再試';
+      errorEl.style.display = 'block';
+      buttons.forEach(b => { b.disabled = false; });
+      return;
+    }
+
+    const updated = await res.json();
+
+    // 5.2 即時更新該列 status 顯示
+    const statusCell = tr.querySelector('.cell-status');
+    const actionsCell = tr.querySelector('.cell-actions');
+
+    statusCell.innerHTML = `<span class="badge ${STATUS_BADGE_CLASS[updated.status] || ''}">${STATUS_LABELS[updated.status] || updated.status}</span>`;
+    actionsCell.innerHTML = buildActionButtons(updated.status) + '<span class="row-error" style="display:none"></span>';
+
+    // 重新綁定新按鈕
+    const newActions = STATUS_ACTIONS[updated.status] || [];
+    newActions.forEach(action => {
+      const btn = actionsCell.querySelector(`.btn-${action === 'noshow' ? 'noshow' : action}`);
+      if (btn) {
+        btn.addEventListener('click', () => handleStatusUpdate(tr, id, actionToStatus(action)));
+      }
+    });
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-banner');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function hideError() {
+    document.getElementById('error-banner').style.display = 'none';
+  }
+
+  // 初始載入
+  loadReservations();
+</script>
+</body>
+</html>
