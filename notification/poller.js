@@ -14,6 +14,7 @@ function buildPayload(r) {
 }
 
 function poll() {
+  try {
   // 4.1 確認信：新訂位（pending，尚未寄確認）
   const newReservations = db.prepare(`
     SELECT * FROM reservations
@@ -35,11 +36,17 @@ function poll() {
     enqueue(r.id, 'cancellation', buildPayload(r));
     db.prepare(`UPDATE reservations SET cancellation_sent = 1 WHERE id = ?`).run(r.id);
   }
+  } catch (err) {
+    console.error('[poller] error:', err.message);
+  }
 }
 
 function startPoller() {
-  poll();
-  setInterval(poll, 10 * 1000);
+  // 延遲 5 秒等待 API migration 完成後再開始輪詢
+  setTimeout(() => {
+    poll();
+    setInterval(poll, 10 * 1000);
+  }, 5000);
 }
 
 module.exports = { startPoller };

@@ -6,7 +6,7 @@ const dbPath = process.env.DB_PATH
   ? path.resolve(process.env.DB_PATH)
   : path.resolve(__dirname, '../database/restaurant.db');
 
-const db = new Database(dbPath);
+const db = new Database(dbPath, { timeout: 10000 });
 db.pragma('journal_mode = WAL');
 
 module.exports = db;

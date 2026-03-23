@@ -14,6 +14,7 @@ function reservationDate(date, timeSlot) {
 }
 
 function scheduleReminders() {
+  try {
   const now = Date.now();
   const windowMin = 23 * 60 * 60 * 1000; // 23 小時
   const windowMax = 25 * 60 * 60 * 1000; // 25 小時（24 ± 1）
@@ -41,11 +42,16 @@ function scheduleReminders() {
       db.prepare(`UPDATE reservations SET reminder_sent = 1 WHERE id = ?`).run(r.id);
     }
   }
+  } catch (err) {
+    console.error('[scheduler] error:', err.message);
+  }
 }
 
 function startScheduler() {
-  scheduleReminders();
-  setInterval(scheduleReminders, 60 * 60 * 1000); // 每小時
+  setTimeout(() => {
+    scheduleReminders();
+    setInterval(scheduleReminders, 60 * 60 * 1000); // 每小時
+  }, 5000);
 }
 
 module.exports = { startScheduler };
