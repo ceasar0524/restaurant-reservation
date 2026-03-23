@@ -29,11 +29,14 @@ if (fs.existsSync(migrationsDir)) {
 
 // 若無管理員帳號則自動建立預設帳號
 const bcrypt = require('bcryptjs');
+const { randomUUID } = require('crypto');
 const adminCount = db.prepare('SELECT COUNT(*) as c FROM admins').get();
 if (adminCount.c === 0) {
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@restaurant.com';
   const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'admin1234', 10);
-  db.prepare('INSERT INTO admins (username, password_hash) VALUES (?, ?)').run('admin', hash);
-  console.log('預設管理員已建立：admin / ' + (process.env.ADMIN_PASSWORD || 'admin1234'));
+  db.prepare('INSERT INTO admins (id, name, email, hashed_password) VALUES (?, ?, ?, ?)')
+    .run(randomUUID(), 'admin', adminEmail, hash);
+  console.log('預設管理員已建立：' + adminEmail + ' / ' + (process.env.ADMIN_PASSWORD || 'admin1234'));
 }
 
 const app = express();

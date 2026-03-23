@@ -18,6 +18,7 @@ function registerWorker(type, fn) {
 }
 
 async function processJobs() {
+  try {
   const now = new Date().toISOString();
   const jobs = db.prepare(`
     SELECT * FROM notification_jobs
@@ -51,11 +52,16 @@ async function processJobs() {
       }
     }
   }
+  } catch (err) {
+    console.error('[queue] error:', err.message);
+  }
 }
 
 function startWorkerLoop() {
-  processJobs();
-  setInterval(processJobs, 30 * 1000);
+  setTimeout(() => {
+    processJobs();
+    setInterval(processJobs, 30 * 1000);
+  }, 5000);
 }
 
 module.exports = { enqueue, registerWorker, startWorkerLoop };
