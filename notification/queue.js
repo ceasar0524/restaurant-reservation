@@ -32,10 +32,12 @@ async function processJobs() {
 
     try {
       await worker(JSON.parse(job.payload));
+      console.log(`[queue] job ${job.id} (${job.type}) delivered`);
       // 6.1 成功：標記 delivered
       db.prepare(`UPDATE notification_jobs SET status = 'delivered' WHERE id = ?`).run(job.id);
     } catch (err) {
       const attempts = job.attempts + 1;
+      console.error(`[queue] job ${job.id} (${job.type}) failed (attempt ${attempts}):`, err.message);
 
       if (attempts >= 3) {
         // 2.4 / 6.2 超過 3 次：標記 failed
