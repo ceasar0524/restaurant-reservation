@@ -277,6 +277,50 @@
       color: var(--muted);
       font-size: 0.88rem;
     }
+
+    /* ── Notes cell ── */
+    .note-display {
+      cursor: pointer;
+      min-width: 100px;
+      max-width: 180px;
+      font-size: 0.82rem;
+      color: var(--dark);
+      white-space: pre-wrap;
+      word-break: break-word;
+      border-radius: 2px;
+      padding: 2px 4px;
+      transition: background 0.15s;
+    }
+
+    .note-display:hover {
+      background: var(--warm);
+    }
+
+    .note-placeholder {
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .note-textarea {
+      width: 160px;
+      min-height: 52px;
+      padding: 4px 6px;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      border: 1px solid var(--gold);
+      border-radius: 2px;
+      outline: none;
+      resize: vertical;
+      color: var(--dark);
+      background: #fff;
+    }
+
+    .note-error {
+      font-size: 0.72rem;
+      color: var(--error);
+      display: block;
+      margin-top: 3px;
+    }
   </style>
 </head>
 <body>
@@ -333,15 +377,17 @@
         <tr>
           <th>確認碼</th>
           <th>姓名</th>
+          <th>手機</th>
           <th>日期</th>
           <th>時段</th>
           <th>人數</th>
           <th>狀態</th>
+          <th>備註</th>
           <th>操作</th>
         </tr>
       </thead>
       <tbody id="table-body">
-        <tr class="loading-row"><td colspan="7">載入中…</td></tr>
+        <tr class="loading-row"><td colspan="9">載入中…</td></tr>
       </tbody>
     </table>
   </div>
@@ -403,7 +449,7 @@
   // ── 4.1 載入訂位列表 ──
   async function loadReservations() {
     const body = document.getElementById('table-body');
-    body.innerHTML = '<tr class="loading-row"><td colspan="7">載入中…</td></tr>';
+    body.innerHTML = '<tr class="loading-row"><td colspan="9">載入中…</td></tr>';
     hideError();
 
     const params = new URLSearchParams({ page: currentPage, limit: 20 });
@@ -430,7 +476,7 @@
 
     // 4.5 空結果
     if (!data || data.length === 0) {
-      body.innerHTML = '<tr><td colspan="7" class="empty-state">目前沒有符合條件的訂位</td></tr>';
+      body.innerHTML = '<tr><td colspan="9" class="empty-state">目前沒有符合條件的訂位</td></tr>';
       updatePagination({ page: 1, totalPages: 1 });
       return;
     }
@@ -524,10 +570,12 @@
     tr.innerHTML = `
       <td>${r.confirmation_code}</td>
       <td>${r.customer_name}</td>
+      <td>${r.customer_phone || '—'}</td>
       <td>${r.date}</td>
       <td>${r.time_slot}</td>
       <td>${r.party_size}</td>
       <td class="cell-status">${statusBadge}</td>
+      <td class="cell-note">${r.special_requests ? `<span class="note-display">${r.special_requests}</span>` : '<span class="note-placeholder">—</span>'}</td>
       <td class="cell-actions">
         ${buildActionButtons(r.status)}
         <span class="row-error" style="display:none"></span>

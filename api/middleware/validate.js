@@ -27,8 +27,9 @@ const modifyReservationSchema = Joi.object({
 const updateStatusSchema = Joi.object({
   status: Joi.string()
     .valid('pending', 'confirmed', 'cancelled', 'completed', 'no_show')
-    .required(),
-});
+    .optional(),
+  admin_notes: Joi.string().allow('', null).optional(),
+}).min(1);
 
 function validate(schema) {
   return (req, res, next) => {

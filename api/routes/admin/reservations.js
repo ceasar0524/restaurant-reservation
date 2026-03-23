@@ -37,14 +37,30 @@ router.get('/', (req, res) => {
   });
 });
 
-// PATCH /api/admin/reservations/:id — 更新訂位狀態
+// PATCH /api/admin/reservations/:id — 更新訂位狀態或備註
 router.patch('/:id', validate(updateStatusSchema), (req, res, next) => {
-  const { status } = req.body;
+  const { status, admin_notes } = req.body;
   const ts = nowISO();
 
+  const setClauses = [];
+  const params = [];
+
+  if (status !== undefined) {
+    setClauses.push('status = ?');
+    params.push(status);
+  }
+  if (admin_notes !== undefined) {
+    setClauses.push('admin_notes = ?');
+    params.push(admin_notes === '' ? null : admin_notes);
+  }
+
+  setClauses.push('updated_at = ?');
+  params.push(ts);
+  params.push(req.params.id);
+
   const result = db
-    .prepare('UPDATE reservations SET status = ?, updated_at = ? WHERE id = ?')
-    .run(status, ts, req.params.id);
+    .prepare(`UPDATE reservations SET ${setClauses.join(', ')} WHERE id = ?`)
+    .run(...params);
 
   if (result.changes === 0) {
     return next(createError(404, ERRORS.NOT_FOUND, '找不到此訂位'));
@@ -52,7 +68,7 @@ router.patch('/:id', validate(updateStatusSchema), (req, res, next) => {
 
   const updated = db.prepare('SELECT * FROM reservations WHERE id = ?').get(req.params.id);
 
-  if (['confirmed', 'cancelled'].includes(status)) {
+  if (status && ['confirmed', 'cancelled'].includes(status)) {
     notification.enqueue({
       type: 'status_updated',
       confirmation_code: updated.confirmation_code,
