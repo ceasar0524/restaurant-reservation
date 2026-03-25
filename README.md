@@ -30,6 +30,18 @@ Express API（api/index.js）
             └── 寄送訂位確認信（Resend）
 ```
 
+## 資料庫設計
+
+使用 SQLite 搭配完整的 Migration 系統，並透過 **Repository 層**隔離資料存取邏輯：
+
+```
+routes → repository → db
+```
+
+- 所有 SQL 查詢集中在 `api/db/repositories/`，routes 不直接接觸資料庫
+- 新增欄位或表格只需新增 migration 檔案（`database/*.sql`），自動追蹤執行
+- 未來若需更換資料庫（如 SQLite → PostgreSQL），只需修改 repository 層，業務邏輯不受影響
+
 ## 使用工具
 
 | 工具 | 用途 |

@@ -1,13 +1,13 @@
 const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const db = require('../db');
+const adminRepo = require('../db/repositories/adminRepository');
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
-  const admin = db.prepare('SELECT * FROM admins WHERE email = ?').get(email);
+  const admin = adminRepo.findByEmail(email);
   if (!admin) {
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid credentials' } });
   }
@@ -52,7 +52,7 @@ router.post('/refresh', (req, res) => {
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid refresh token' } });
   }
 
-  const admin = db.prepare('SELECT id, email FROM admins WHERE id = ?').get(payload.adminId);
+  const admin = adminRepo.findById(payload.adminId);
   if (!admin) {
     return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Invalid refresh token' } });
   }

@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const router = require('express').Router();
-const db = require('../db');
+const reservationRepo = require('../db/repositories/reservationRepository');
+const notificationRepo = require('../db/repositories/notificationRepository');
 const { validate, createReservationSchema, modifyReservationSchema } = require('../middleware/validate');
 const { createError } = require('../middleware/errorHandler');
 const ERRORS = require('../constants/errors');
@@ -31,12 +32,7 @@ router.get('/daily-availability', (req, res) => {
     return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'from 和 to 為必填（YYYY-MM-DD）' } });
   }
 
-  const rows = db.prepare(`
-    SELECT date, time_slot, COUNT(*) as groups, COALESCE(SUM(party_size), 0) as people
-    FROM reservations
-    WHERE date >= ? AND date <= ? AND status NOT IN ('cancelled')
-    GROUP BY date, time_slot
-  `).all(from, to);
+  const rows = reservationRepo.getUsageByDateRange(from, to);
 
   const usage = {};
   for (const r of rows) {
@@ -76,15 +72,7 @@ router.get('/availability', (req, res) => {
     return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'date 為必填（YYYY-MM-DD）' } });
   }
 
-  const rows = db.prepare(`
-    SELECT time_slot, COUNT(*) as groups, SUM(party_size) as people
-    FROM reservations
-    WHERE date = ?
-      AND status NOT IN ('cancelled')
-      AND (? IS NULL OR confirmation_code != ?)
-    GROUP BY time_slot
-  `).all(date, exclude_code ?? null, exclude_code ?? null);
-
+  const rows = reservationRepo.getSlotUsage(date, exclude_code);
   const usage = Object.fromEntries(rows.map(r => [r.time_slot, r]));
 
   const slots = TIME_SLOTS.map(slot => {
@@ -105,12 +93,7 @@ router.post('/', validate(createReservationSchema), (req, res, next) => {
   const { customer_name, customer_email, customer_phone, date, time_slot, party_size, special_requests } = req.body;
 
   // 容量檢查
-  const usage = db.prepare(`
-    SELECT COUNT(*) as groups, COALESCE(SUM(party_size), 0) as people
-    FROM reservations
-    WHERE date = ? AND time_slot = ? AND status NOT IN ('cancelled')
-  `).get(date, time_slot);
-
+  const usage = reservationRepo.checkCapacity(date, time_slot);
   if (usage.groups >= MAX_GROUPS || usage.people + party_size > MAX_PEOPLE) {
     return next(createError(409, ERRORS.SLOT_FULL, '此時段已滿'));
   }
@@ -120,13 +103,18 @@ router.post('/', validate(createReservationSchema), (req, res, next) => {
   const ts = nowISO();
 
   try {
-    db.prepare(`
-      INSERT INTO reservations
-        (id, customer_name, customer_phone, customer_email, date, time_slot,
-         party_size, special_requests, status, confirmation_code, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)
-    `).run(id, customer_name, customer_phone, customer_email, date, time_slot,
-           party_size, special_requests ?? null, confirmation_code, ts, ts);
+    reservationRepo.create({
+      id,
+      customerName: customer_name,
+      customerPhone: customer_phone,
+      customerEmail: customer_email,
+      date,
+      timeSlot: time_slot,
+      partySize: party_size,
+      specialRequests: special_requests,
+      confirmationCode: confirmation_code,
+      ts,
+    });
   } catch (err) {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return next(createError(409, ERRORS.CONFLICT, '此 email 在該日期時段已有訂位'));
@@ -134,7 +122,7 @@ router.post('/', validate(createReservationSchema), (req, res, next) => {
     return next(err);
   }
 
-  const reservation = db.prepare('SELECT * FROM reservations WHERE id = ?').get(id);
+  const reservation = reservationRepo.findById(id);
 
   // 非阻塞：推入通知佇列
   notification.enqueue({ type: 'reservation_created', confirmation_code });
@@ -144,9 +132,7 @@ router.post('/', validate(createReservationSchema), (req, res, next) => {
 
 // GET /api/reservations/:confirmationCode — 查詢訂位
 router.get('/:confirmationCode', (req, res, next) => {
-  const reservation = db
-    .prepare('SELECT * FROM reservations WHERE confirmation_code = ?')
-    .get(req.params.confirmationCode);
+  const reservation = reservationRepo.findByConfirmationCode(req.params.confirmationCode);
 
   if (!reservation) {
     return next(createError(404, ERRORS.NOT_FOUND, '找不到此確認碼的訂位'));
@@ -157,9 +143,7 @@ router.get('/:confirmationCode', (req, res, next) => {
 
 // PATCH /api/reservations/:confirmationCode — 修改日期/時段
 router.patch('/:confirmationCode', validate(modifyReservationSchema), (req, res, next) => {
-  const reservation = db
-    .prepare('SELECT * FROM reservations WHERE confirmation_code = ?')
-    .get(req.params.confirmationCode);
+  const reservation = reservationRepo.findByConfirmationCode(req.params.confirmationCode);
 
   if (!reservation) {
     return next(createError(404, ERRORS.NOT_FOUND, '找不到此確認碼的訂位'));
@@ -171,22 +155,13 @@ router.patch('/:confirmationCode', validate(modifyReservationSchema), (req, res,
   const ts = nowISO();
 
   // 容量檢查（排除自己這筆，使用新人數）
-  const usage = db.prepare(`
-    SELECT COUNT(*) as groups, COALESCE(SUM(party_size), 0) as people
-    FROM reservations
-    WHERE date = ? AND time_slot = ? AND status NOT IN ('cancelled')
-      AND confirmation_code != ?
-  `).get(date, time_slot, req.params.confirmationCode);
-
+  const usage = reservationRepo.checkCapacityExcluding(date, time_slot, req.params.confirmationCode);
   if (usage.groups >= MAX_GROUPS || usage.people + party_size > MAX_PEOPLE) {
     return next(createError(409, ERRORS.SLOT_FULL, '此時段已滿'));
   }
 
   try {
-    db.prepare(`
-      UPDATE reservations SET date = ?, time_slot = ?, party_size = ?, updated_at = ?, reminder_sent = 0
-      WHERE confirmation_code = ?
-    `).run(date, time_slot, party_size, ts, req.params.confirmationCode);
+    reservationRepo.update(req.params.confirmationCode, { date, timeSlot: time_slot, partySize: party_size, ts });
   } catch (err) {
     if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
       return next(createError(409, ERRORS.CONFLICT, '此 email 在該日期時段已有訂位'));
@@ -194,31 +169,23 @@ router.patch('/:confirmationCode', validate(modifyReservationSchema), (req, res,
     return next(err);
   }
 
-  const updated = db
-    .prepare('SELECT * FROM reservations WHERE confirmation_code = ?')
-    .get(req.params.confirmationCode);
+  const updated = reservationRepo.findByConfirmationCode(req.params.confirmationCode);
 
-  // 直接寫入 notification_jobs，通知服務 worker 會自動處理
-  db.prepare(`
-    INSERT INTO notification_jobs (reservation_id, type, payload)
-    VALUES (?, 'modification', ?)
-  `).run(updated.id, JSON.stringify({
+  notificationRepo.enqueue(updated.id, 'modification', {
     customer_email: updated.customer_email,
     customer_name: updated.customer_name,
     confirmation_code: updated.confirmation_code,
     date: updated.date,
     time_slot: updated.time_slot,
     party_size: updated.party_size,
-  }));
+  });
 
   return res.json(updated);
 });
 
 // DELETE /api/reservations/:confirmationCode — 取消訂位
 router.delete('/:confirmationCode', (req, res, next) => {
-  const reservation = db
-    .prepare('SELECT * FROM reservations WHERE confirmation_code = ?')
-    .get(req.params.confirmationCode);
+  const reservation = reservationRepo.findByConfirmationCode(req.params.confirmationCode);
 
   if (!reservation) {
     return next(createError(404, ERRORS.NOT_FOUND, '找不到此確認碼的訂位'));
@@ -230,14 +197,9 @@ router.delete('/:confirmationCode', (req, res, next) => {
   }
 
   const ts = nowISO();
-  db.prepare(`
-    UPDATE reservations SET status = 'cancelled', updated_at = ?
-    WHERE confirmation_code = ?
-  `).run(ts, req.params.confirmationCode);
+  reservationRepo.cancel(req.params.confirmationCode, ts);
 
-  const updated = db
-    .prepare('SELECT * FROM reservations WHERE confirmation_code = ?')
-    .get(req.params.confirmationCode);
+  const updated = reservationRepo.findByConfirmationCode(req.params.confirmationCode);
 
   return res.json(updated);
 });
