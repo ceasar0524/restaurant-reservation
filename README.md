@@ -4,6 +4,10 @@
 
 **Demo：** https://restaurant-reservation-production-6854.up.railway.app/
 
+## 適用情境
+
+專為**小型餐廳或個人店家**設計，適合每日訂位量不大、不需要複雜排班系統的場景。以免費或低成本工具為主（SQLite 資料庫、Railway 免費方案），無需額外基礎建設費用，開箱即用。
+
 ## 系統架構
 
 ```
