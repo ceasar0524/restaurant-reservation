@@ -2,6 +2,8 @@
 
 線上餐廳訂位管理系統，提供顧客預約、後台管理，並自動發送訂位確認通知。
 
+**Demo：** https://restaurant-reservation-production-6854.up.railway.app/
+
 ## 系統架構
 
 ```
